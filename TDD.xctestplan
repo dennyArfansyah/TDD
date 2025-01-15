@@ -23,14 +23,6 @@
         "identifier" : "37D505D42D378F9600F14A85",
         "name" : "TDDTests"
       }
-    },
-    {
-      "enabled" : false,
-      "target" : {
-        "containerPath" : "container:TDD.xcodeproj",
-        "identifier" : "37D505DE2D378F9600F14A85",
-        "name" : "TDDUITests"
-      }
     }
   ],
   "version" : 1
