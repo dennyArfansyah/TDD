@@ -41,8 +41,12 @@ class RemoteCharacterSerice {
         self.stubbingProvider = stubbingProvider
     }
     
+    enum Error: Swift.Error {
+        case timeoutError
+    }
+    
     func load() throws {
-        throw NSError()
+        throw Error.timeoutError
     }
 }
 
@@ -59,7 +63,14 @@ final class TDDTests: XCTestCase {
         let stubbingProvider = MoyaProvider<CharacterTargetType>(endpointClosure: customEndpointClosure, stubClosure: MoyaProvider.immediatelyStub)
         let sut = RemoteCharacterSerice(stubbingProvider: stubbingProvider)
         
-        XCTAssertThrowsError(try sut.load())
+        do {
+            try sut.load()
+        } catch {
+            if let error = error as? RemoteCharacterSerice.Error {
+                XCTAssertEqual(error, .timeoutError)
+            } else {
+                XCTFail("expecting timoutError but got \(error) instead.")
+            }
+        }
     }
-
 }
