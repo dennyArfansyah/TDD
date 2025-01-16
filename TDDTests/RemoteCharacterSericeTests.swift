@@ -12,6 +12,7 @@ import XCTest
 // 1. success -> fetch character
 // 2. success -> not found
 // 3. success -> different format JSON
+// 3. success -> empty JSON ✅
 // 4. failure -> timout ✅
 
 enum CharacterTargetType: TargetType {
