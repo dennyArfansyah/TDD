@@ -5,31 +5,66 @@
 //  Created by Denny Arfansyah on 15/01/25.
 //
 
+import Moya
 import XCTest
+
+// TEST CASES
+// 1. success -> fetch character
+// 2. success -> not found
+// 3. success -> different format JSON
+// 4. failure -> timout
+
+enum CharacterTargetType: TargetType {
+    
+    case fetchCharacter(id: Int)
+    
+    var baseURL: URL { URL(string: "https://rickandmortyapi.com/api/")! }
+    var path: String {
+        switch self {
+        case let .fetchCharacter(id):
+            return "/character/\(id)"
+        }
+    }
+    var method: Moya.Method {
+        switch self {
+        case .fetchCharacter:
+            return .get
+        }
+    }
+    var task: Moya.Task { .requestPlain }
+    var headers: [String : String]? { nil }
+}
+
+class RemoteCharacterSerice {
+    
+    private let stubbingProvider: MoyaProvider<CharacterTargetType>
+    
+    init(stubbingProvider: MoyaProvider<CharacterTargetType>) {
+        self.stubbingProvider = stubbingProvider
+    }
+    
+    func load() throws {
+        throw NSError()
+    }
+}
 
 final class TDDTests: XCTestCase {
 
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
-    }
-
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        measure {
-            // Put the code you want to measure the time of here.
+    func test_load_returnTimeoutErrorOnNetworkError() {
+        
+        let customEndpointClosure = { (target: CharacterTargetType) -> Endpoint in
+            return Endpoint(url: URL(target: target).absoluteString,
+                            sampleResponseClosure: { .networkError(NSError()) },
+                            method: target.method,
+                            task: target.task,
+                            httpHeaderFields: target.headers)
         }
+
+        let stubbingProvider = MoyaProvider<CharacterTargetType>(endpointClosure: customEndpointClosure, stubClosure: MoyaProvider.immediatelyStub)
+        
+        let sut = RemoteCharacterSerice(stubbingProvider: stubbingProvider)
+        
+        XCTAssertThrowsError(try sut.load())
     }
 
 }
