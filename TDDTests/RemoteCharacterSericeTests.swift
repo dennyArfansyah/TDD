@@ -12,6 +12,8 @@ import XCTest
 // 1. success -> fetch character
 // 2. success -> not found
 // 3. success -> different format JSON
+// 3. success -> server error ✅
+// 3. success -> empty JSON ✅
 // 4. failure -> timout ✅
 
 enum CharacterTargetType: TargetType {
@@ -44,14 +46,19 @@ class RemoteCharacterSerice {
     enum Error: Swift.Error {
         case timeoutError
         case invalidJSONError
+        case serverError
     }
     
     func load(id: Int) async throws {
         return try await withCheckedThrowingContinuation { continuation in
             stubbingProvider.request(.fetchCharacter(id: id)) { result in
                 switch result {
-                case .success:
-                    continuation.resume(with: .failure(Error.invalidJSONError))
+                case .success(let response):
+                    if response.statusCode == 500 {
+                        continuation.resume(with: .failure(Error.serverError))
+                    } else {
+                        continuation.resume(with: .failure(Error.invalidJSONError))
+                    }
                 case .failure:
                     continuation.resume(throwing: Error.timeoutError)
                 }
@@ -101,6 +108,29 @@ final class TDDTests: XCTestCase {
         } catch {
             if let error = error as? RemoteCharacterSerice.Error {
                 XCTAssertEqual(error, .invalidJSONError)
+            } else {
+                XCTFail("expecting timoutError but got \(error) instead.")
+            }
+        }
+    }
+    
+    func test_load_returnServerErrorOn500HTPPResponse() async {
+        let customEndpointClosure = { (target: CharacterTargetType) -> Endpoint in
+            return Endpoint(url: URL(target: target).absoluteString,
+                            sampleResponseClosure: { .networkResponse(500, "".data(using: .utf8)!) },
+                            method: target.method,
+                            task: target.task,
+                            httpHeaderFields: target.headers)
+        }
+        
+        let stubbingProvider = MoyaProvider<CharacterTargetType>(endpointClosure: customEndpointClosure, stubClosure: MoyaProvider.immediatelyStub)
+        let sut = RemoteCharacterSerice(stubbingProvider: stubbingProvider)
+        
+        do {
+            try await sut.load(id: 1)
+        } catch {
+            if let error = error as? RemoteCharacterSerice.Error {
+                XCTAssertEqual(error, .serverError)
             } else {
                 XCTFail("expecting timoutError but got \(error) instead.")
             }
