@@ -9,9 +9,9 @@ import Moya
 import XCTest
 
 // TEST CASES
-// 1. success -> fetch character
-// 2. success -> not found
-// 3. success -> different format JSON
+// 1. success -> fetch character ✅
+// 2. success -> not found ✅
+// 3. success -> different format JSON ✅
 // 3. success -> server error ✅
 // 3. success -> empty JSON ✅
 // 4. failure -> timout ✅
@@ -47,6 +47,7 @@ class RemoteCharacterSerice {
         case timeoutError
         case invalidJSONError
         case serverError
+        case notFoundCharacterError
     }
     
     func load(id: Int) async throws -> Character {
@@ -54,7 +55,9 @@ class RemoteCharacterSerice {
             stubbingProvider.request(.fetchCharacter(id: id)) { result in
                 switch result {
                 case .success(let response):
-                    if response.statusCode == 500 {
+                    if response.statusCode == 201 {
+                        continuation.resume(with: .failure(Error.notFoundCharacterError))
+                    } else if response.statusCode == 500 {
                         continuation.resume(with: .failure(Error.serverError))
                     } else {
                         do {
@@ -165,6 +168,26 @@ final class TDDTests: XCTestCase {
         } catch {
             XCTFail("expecting to decode but got \(error) instead.")
         }
+    }
+    
+    func test_load_whenNotFoundError_return200HTTPResponse() async {
+        let notFoundCharacterJSONData = """
+        {
+            "error": "Character not found"
+        }
+        """.data(using: .utf8)!
+        let sut = makeSUT(sampleResponseClosure: { .networkResponse(201, notFoundCharacterJSONData) })
+        
+        do {
+            _ = try await sut.load(id: 1)
+        } catch {
+            if let error = error as? RemoteCharacterSerice.Error {
+                XCTAssertEqual(error, .notFoundCharacterError)
+            } else {
+                XCTFail("expecting timoutError but got \(error) instead.")
+            }
+        }
+
     }
     
     // MARK: Helper
