@@ -49,7 +49,7 @@ class RemoteCharacterSerice {
         case serverError
     }
     
-    func load(id: Int) async throws {
+    func load(id: Int) async throws -> Character {
         return try await withCheckedThrowingContinuation { continuation in
             stubbingProvider.request(.fetchCharacter(id: id)) { result in
                 switch result {
@@ -57,7 +57,12 @@ class RemoteCharacterSerice {
                     if response.statusCode == 500 {
                         continuation.resume(with: .failure(Error.serverError))
                     } else {
-                        continuation.resume(with: .failure(Error.invalidJSONError))
+                        do {
+                            let character = try JSONDecoder().decode(Character.self, from: response.data)
+                            continuation.resume(with: .success(character))
+                        } catch {
+                            continuation.resume(with: .failure(Error.invalidJSONError))
+                        }
                     }
                 case .failure:
                     continuation.resume(throwing: Error.timeoutError)
@@ -67,11 +72,19 @@ class RemoteCharacterSerice {
     }
 }
 
+struct Character: Decodable {
+    let id: Int
+    let name: String
+    let status: String
+    let species: String
+    let gender: String
+}
+
 final class TDDTests: XCTestCase {
     func test_load_returnTimeoutErrorOnNetworkError() async {
         let sut = makeSUT(sampleResponseClosure: { .networkError(NSError()) })
         do {
-            try await sut.load(id: 1)
+            _ = try await sut.load(id: 1)
         } catch {
             if let error = error as? RemoteCharacterSerice.Error {
                 XCTAssertEqual(error, .timeoutError)
@@ -81,11 +94,11 @@ final class TDDTests: XCTestCase {
         }
     }
     
-    func test_load_returnInvalidJSONErrorOn200HTPPResponse() async {
+    func test_load_whenEmptyData_returnInvalidJSONError() async {
         let sut = makeSUT(sampleResponseClosure: { .networkResponse(200, "".data(using: .utf8)!) })
         
         do {
-            try await sut.load(id: 1)
+            _ = try await sut.load(id: 1)
         } catch {
             if let error = error as? RemoteCharacterSerice.Error {
                 XCTAssertEqual(error, .invalidJSONError)
@@ -99,7 +112,7 @@ final class TDDTests: XCTestCase {
         let sut = makeSUT(sampleResponseClosure: { .networkResponse(500, "".data(using: .utf8)!) })
         
         do {
-            try await sut.load(id: 1)
+            _ = try await sut.load(id: 1)
         } catch {
             if let error = error as? RemoteCharacterSerice.Error {
                 XCTAssertEqual(error, .serverError)
@@ -109,6 +122,52 @@ final class TDDTests: XCTestCase {
         }
     }
     
+    func test_load_whenDifferentFormatData_returnInvalidJSONError() async {
+        let invalidJSOnFormatData = """
+        {
+            id: 1,
+            name: "Rick Sanchez",
+            status: "Alive",
+            species: "Human",
+            gender: "Male"
+        }
+        """.data(using: .utf8)!
+        let sut = makeSUT(sampleResponseClosure: { .networkResponse(200, invalidJSOnFormatData) })
+        
+        do {
+            _ = try await sut.load(id: 1)
+        } catch {
+            if let error = error as? RemoteCharacterSerice.Error {
+                XCTAssertEqual(error, .invalidJSONError)
+            } else {
+                XCTFail("expecting timoutError but got \(error) instead.")
+            }
+        }
+    }
+    
+    func test_load_whenValidFormatData_return200HTTPResponse() async {
+        let validJSONFormatData = """
+        {
+            "id": 1,
+            "name": "Rick Sanchez",
+            "status": "Alive",
+            "species": "Human",
+            "gender": "Male",
+        }
+        """.data(using: .utf8)!
+        let sut = makeSUT(sampleResponseClosure: { .networkResponse(200, validJSONFormatData) })
+        
+        do {
+            let character = try await sut.load(id: 1)
+            XCTAssertEqual(character.name, "Rick Sanchez")
+            XCTAssertEqual(character.status, "Alive")
+            XCTAssertEqual(character.gender, "Male")
+        } catch {
+            XCTFail("expecting to decode but got \(error) instead.")
+        }
+    }
+    
+    // MARK: Helper
     private func makeSUT(sampleResponseClosure: @escaping Endpoint.SampleResponseClosure) -> RemoteCharacterSerice {
         let customEndpointClosure = { (target: CharacterTargetType) -> Endpoint in
             return Endpoint(url: URL(target: target).absoluteString,
@@ -119,6 +178,7 @@ final class TDDTests: XCTestCase {
         }
         
         let stubbingProvider = MoyaProvider<CharacterTargetType>(endpointClosure: customEndpointClosure, stubClosure: MoyaProvider.immediatelyStub)
-        return RemoteCharacterSerice(stubbingProvider: stubbingProvider)
+        let service = RemoteCharacterSerice(stubbingProvider: stubbingProvider)
+        return service
     }
 }
