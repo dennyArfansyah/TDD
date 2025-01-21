@@ -187,7 +187,6 @@ final class TDDTests: XCTestCase {
                 XCTFail("expecting timoutError but got \(error) instead.")
             }
         }
-
     }
     
     // MARK: Helper
