@@ -52,24 +52,35 @@ class RemoteCharacterSerice {
     
     func load(id: Int) async throws -> Character {
         return try await withCheckedThrowingContinuation { continuation in
-            stubbingProvider.request(.fetchCharacter(id: id)) { result in
-                switch result {
-                case .success(let response):
-                    if response.statusCode == 201 {
-                        continuation.resume(with: .failure(Error.notFoundCharacterError))
-                    } else if response.statusCode == 500 {
-                        continuation.resume(with: .failure(Error.serverError))
-                    } else {
-                        do {
-                            let character = try JSONDecoder().decode(Character.self, from: response.data)
-                            continuation.resume(with: .success(character))
-                        } catch {
-                            continuation.resume(with: .failure(Error.invalidJSONError))
-                        }
-                    }
-                case .failure:
-                    continuation.resume(throwing: Error.timeoutError)
-                }
+            load(id: id) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+    
+    private func load(id: Int, completion: @escaping (Result<Character, Error>) -> Void) {
+        stubbingProvider.request(.fetchCharacter(id: id)) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let response):
+                completion(self.mapping(response))
+            case .failure:
+                completion(.failure(.timeoutError))
+            }
+        }
+    }
+    
+    private func mapping(_ response: Response) -> Result<Character, Error> {
+        if response.statusCode == 201 {
+            return .failure(Error.notFoundCharacterError)
+        } else if response.statusCode == 500 {
+            return .failure(Error.serverError)
+        } else {
+            do {
+                let character = try JSONDecoder().decode(Character.self, from: response.data)
+                return .success(character)
+            } catch {
+                return .failure(Error.invalidJSONError)
             }
         }
     }
