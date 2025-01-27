@@ -126,16 +126,7 @@ final class TDDTests: XCTestCase {
     }
     
     func test_load_whenDifferentFormatData_returnInvalidJSONError() async {
-        let invalidJSOnFormatData = """
-        {
-            id: 1,
-            name: "Rick Sanchez",
-            status: "Alive",
-            species: "Human",
-            gender: "Male"
-        }
-        """.data(using: .utf8)!
-        let sut = makeSUT(sampleResponseClosure: { .networkResponse(200, invalidJSOnFormatData) })
+        let sut = makeSUT(sampleResponseClosure: { .networkResponse(200, self.invalidJSONFormatData()) })
         
         do {
             _ = try await sut.load(id: 1)
@@ -202,5 +193,21 @@ final class TDDTests: XCTestCase {
         let stubbingProvider = MoyaProvider<CharacterTargetType>(endpointClosure: customEndpointClosure, stubClosure: MoyaProvider.immediatelyStub)
         let service = RemoteCharacterSerice(stubbingProvider: stubbingProvider)
         return service
+    }
+    
+    // MARK: Helper
+    
+    private func invalidJSONFormatData() -> Data {
+        let invalidJSOnFormatData = """
+        {
+            id: 1,
+            name: "Rick Sanchez",
+            status: "Alive",
+            species: "Human",
+            gender: "Male"
+        }
+        """.data(using: .utf8)!
+        
+        return invalidJSOnFormatData
     }
 }
