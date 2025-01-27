@@ -5,15 +5,15 @@
 //  Created by Denny Arfansyah on 28/01/25.
 //
 
-import XCTest
 import Moya
+import XCTest
 @testable import TDD
 
 final class RemoteCharacterServiceAPIIntegrationTests: XCTestCase {
 
     func test_load_returnRightCharacter() async {
         let stubbingProvider = MoyaProvider<CharacterTargetType>()
-        let sut = RemoteCharacterSerice(stubbingProvider: stubbingProvider)
+        let sut = RemoteCharacterService(stubbingProvider: stubbingProvider)
         
         do {
             let character = try await sut.load(id: 1)

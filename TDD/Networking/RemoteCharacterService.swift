@@ -8,7 +8,7 @@
 import Foundation
 import Moya
 
-class RemoteCharacterSerice {
+class RemoteCharacterService {
     private let stubbingProvider: MoyaProvider<CharacterTargetType>
     
     init(stubbingProvider: MoyaProvider<CharacterTargetType>) {
@@ -31,7 +31,7 @@ class RemoteCharacterSerice {
     }
 }
 
-extension RemoteCharacterSerice {
+extension RemoteCharacterService {
     private func load(id: Int, completion: @escaping (Result<Character, Error>) -> Void) {
         stubbingProvider.request(.fetchCharacter(id: id)) { [weak self] result in
             guard let self else { return }

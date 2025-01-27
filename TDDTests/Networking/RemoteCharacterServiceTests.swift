@@ -23,7 +23,7 @@ final class RemoteCharacterServiceTests: XCTestCase {
         do {
             _ = try await sut.load(id: 1)
         } catch {
-            if let error = error as? RemoteCharacterSerice.Error {
+            if let error = error as? RemoteCharacterService.Error {
                 XCTAssertEqual(error, .timeoutError)
             } else {
                 XCTFail("expecting timoutError but got \(error) instead.")
@@ -37,7 +37,7 @@ final class RemoteCharacterServiceTests: XCTestCase {
         do {
             _ = try await sut.load(id: 1)
         } catch {
-            if let error = error as? RemoteCharacterSerice.Error {
+            if let error = error as? RemoteCharacterService.Error {
                 XCTAssertEqual(error, .invalidJSONError)
             } else {
                 XCTFail("expecting timoutError but got \(error) instead.")
@@ -51,7 +51,7 @@ final class RemoteCharacterServiceTests: XCTestCase {
         do {
             _ = try await sut.load(id: 1)
         } catch {
-            if let error = error as? RemoteCharacterSerice.Error {
+            if let error = error as? RemoteCharacterService.Error {
                 XCTAssertEqual(error, .serverError)
             } else {
                 XCTFail("expecting timoutError but got \(error) instead.")
@@ -65,7 +65,7 @@ final class RemoteCharacterServiceTests: XCTestCase {
         do {
             _ = try await sut.load(id: 1)
         } catch {
-            if let error = error as? RemoteCharacterSerice.Error {
+            if let error = error as? RemoteCharacterService.Error {
                 XCTAssertEqual(error, .invalidJSONError)
             } else {
                 XCTFail("expecting timoutError but got \(error) instead.")
@@ -92,7 +92,7 @@ final class RemoteCharacterServiceTests: XCTestCase {
         do {
             _ = try await sut.load(id: 1)
         } catch {
-            if let error = error as? RemoteCharacterSerice.Error {
+            if let error = error as? RemoteCharacterService.Error {
                 XCTAssertEqual(error, .notFoundCharacterError)
             } else {
                 XCTFail("expecting timoutError but got \(error) instead.")
@@ -101,7 +101,7 @@ final class RemoteCharacterServiceTests: XCTestCase {
     }
     
     // MARK: Helper
-    private func makeSUT(sampleResponseClosure: @escaping Endpoint.SampleResponseClosure) -> RemoteCharacterSerice {
+    private func makeSUT(sampleResponseClosure: @escaping Endpoint.SampleResponseClosure) -> RemoteCharacterService {
         let customEndpointClosure = { (target: CharacterTargetType) -> Endpoint in
             return Endpoint(url: URL(target: target).absoluteString,
                             sampleResponseClosure: sampleResponseClosure,
@@ -111,7 +111,7 @@ final class RemoteCharacterServiceTests: XCTestCase {
         }
         
         let stubbingProvider = MoyaProvider<CharacterTargetType>(endpointClosure: customEndpointClosure, stubClosure: MoyaProvider.immediatelyStub)
-        let service = RemoteCharacterSerice(stubbingProvider: stubbingProvider)
+        let service = RemoteCharacterService(stubbingProvider: stubbingProvider)
         return service
     }
     
