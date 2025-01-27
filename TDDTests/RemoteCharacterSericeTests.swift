@@ -140,16 +140,7 @@ final class TDDTests: XCTestCase {
     }
     
     func test_load_whenValidFormatData_return200HTTPResponse() async {
-        let validJSONFormatData = """
-        {
-            "id": 1,
-            "name": "Rick Sanchez",
-            "status": "Alive",
-            "species": "Human",
-            "gender": "Male",
-        }
-        """.data(using: .utf8)!
-        let sut = makeSUT(sampleResponseClosure: { .networkResponse(200, validJSONFormatData) })
+        let sut = makeSUT(sampleResponseClosure: { .networkResponse(200, self.validJSONFormatData()) })
         
         do {
             let character = try await sut.load(id: 1)
@@ -213,5 +204,18 @@ final class TDDTests: XCTestCase {
     
     private func emptyJSONData() -> Data {
         return "".data(using: .utf8)!
+    }
+    
+    private func validJSONFormatData() -> Data {
+        let validJSONFormatData = """
+        {
+            "id": 1,
+            "name": "Rick Sanchez",
+            "status": "Alive",
+            "species": "Human",
+            "gender": "Male",
+        }
+        """.data(using: .utf8)!
+        return validJSONFormatData
     }
 }
