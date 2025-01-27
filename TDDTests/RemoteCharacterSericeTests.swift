@@ -153,12 +153,7 @@ final class TDDTests: XCTestCase {
     }
     
     func test_load_whenNotFoundError_return200HTTPResponse() async {
-        let notFoundCharacterJSONData = """
-        {
-            "error": "Character not found"
-        }
-        """.data(using: .utf8)!
-        let sut = makeSUT(sampleResponseClosure: { .networkResponse(201, notFoundCharacterJSONData) })
+        let sut = makeSUT(sampleResponseClosure: { .networkResponse(201, self.notFoundCharacterJSONData()) })
         
         do {
             _ = try await sut.load(id: 1)
@@ -217,5 +212,15 @@ final class TDDTests: XCTestCase {
         }
         """.data(using: .utf8)!
         return validJSONFormatData
+    }
+    
+    private func notFoundCharacterJSONData() -> Data {
+        let notFoundCharacterJSONData = """
+        {
+            "error": "Character not found"
+        }
+        """.data(using: .utf8)!
+        
+        return notFoundCharacterJSONData
     }
 }
