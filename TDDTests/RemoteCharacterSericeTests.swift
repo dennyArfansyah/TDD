@@ -98,7 +98,7 @@ final class TDDTests: XCTestCase {
     }
     
     func test_load_whenEmptyData_returnInvalidJSONError() async {
-        let sut = makeSUT(sampleResponseClosure: { .networkResponse(200, "".data(using: .utf8)!) })
+        let sut = makeSUT(sampleResponseClosure: { .networkResponse(200, self.emptyJSONData()) })
         
         do {
             _ = try await sut.load(id: 1)
@@ -112,7 +112,7 @@ final class TDDTests: XCTestCase {
     }
     
     func test_load_returnServerErrorOn500HTPPResponse() async {
-        let sut = makeSUT(sampleResponseClosure: { .networkResponse(500, "".data(using: .utf8)!) })
+        let sut = makeSUT(sampleResponseClosure: { .networkResponse(500, self.emptyJSONData()) })
         
         do {
             _ = try await sut.load(id: 1)
@@ -209,5 +209,9 @@ final class TDDTests: XCTestCase {
         """.data(using: .utf8)!
         
         return invalidJSOnFormatData
+    }
+    
+    private func emptyJSONData() -> Data {
+        return "".data(using: .utf8)!
     }
 }
