@@ -1,6 +1,6 @@
 //
 //  RemoteCharacterSerice.swift
-//  TDDTests
+//  RemoteCharacterServiceTests
 //
 //  Created by Denny Arfansyah on 15/01/25.
 //
@@ -17,7 +17,7 @@ import XCTest
 // 3. success -> empty JSON ✅
 // 4. failure -> timout ✅
 
-final class TDDTests: XCTestCase {
+final class RemoteCharacterServiceTests: XCTestCase {
     func test_load_returnTimeoutErrorOnNetworkError() async {
         let sut = makeSUT(sampleResponseClosure: { .networkError(NSError()) })
         do {
