@@ -7,6 +7,7 @@
 
 import Moya
 import XCTest
+@testable import TDD
 
 // TEST CASES
 // 1. success -> fetch character ✅
@@ -15,84 +16,6 @@ import XCTest
 // 3. success -> server error ✅
 // 3. success -> empty JSON ✅
 // 4. failure -> timout ✅
-
-enum CharacterTargetType: TargetType {
-    case fetchCharacter(id: Int)
-    
-    var baseURL: URL { URL(string: "https://rickandmortyapi.com/api/")! }
-    var path: String {
-        switch self {
-        case let .fetchCharacter(id):
-            return "/character/\(id)"
-        }
-    }
-    var method: Moya.Method {
-        switch self {
-        case .fetchCharacter:
-            return .get
-        }
-    }
-    var task: Moya.Task { .requestPlain }
-    var headers: [String : String]? { nil }
-}
-
-class RemoteCharacterSerice {
-    private let stubbingProvider: MoyaProvider<CharacterTargetType>
-    
-    init(stubbingProvider: MoyaProvider<CharacterTargetType>) {
-        self.stubbingProvider = stubbingProvider
-    }
-    
-    enum Error: Swift.Error {
-        case timeoutError
-        case invalidJSONError
-        case serverError
-        case notFoundCharacterError
-    }
-    
-    func load(id: Int) async throws -> Character {
-        return try await withCheckedThrowingContinuation { continuation in
-            load(id: id) { result in
-                continuation.resume(with: result)
-            }
-        }
-    }
-    
-    private func load(id: Int, completion: @escaping (Result<Character, Error>) -> Void) {
-        stubbingProvider.request(.fetchCharacter(id: id)) { [weak self] result in
-            guard let self else { return }
-            switch result {
-            case .success(let response):
-                completion(self.mapping(response))
-            case .failure:
-                completion(.failure(.timeoutError))
-            }
-        }
-    }
-    
-    private func mapping(_ response: Response) -> Result<Character, Error> {
-        if response.statusCode == 201 {
-            return .failure(Error.notFoundCharacterError)
-        } else if response.statusCode == 500 {
-            return .failure(Error.serverError)
-        } else {
-            do {
-                let character = try JSONDecoder().decode(Character.self, from: response.data)
-                return .success(character)
-            } catch {
-                return .failure(Error.invalidJSONError)
-            }
-        }
-    }
-}
-
-struct Character: Decodable {
-    let id: Int
-    let name: String
-    let status: String
-    let species: String
-    let gender: String
-}
 
 final class TDDTests: XCTestCase {
     func test_load_returnTimeoutErrorOnNetworkError() async {
