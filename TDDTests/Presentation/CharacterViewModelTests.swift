@@ -27,40 +27,48 @@ final class CharacterViewModel {
 }
 
 final class CharacterViewModelTests: XCTestCase {
-
     func test_init_doesNotLoadUser() {
-        let service = ServiceSpy()
-        _ = CharacterViewModel(service: service)
-        
+        let (_, service) = makeSUT()
         XCTAssertEqual(service.loadUserCallCount, 0)
     }
     
     func test_load_doesLoadUser() async {
-        let service = ServiceSpy()
-        let sut = CharacterViewModel(service: service)
-        
+        let (sut, service) = makeSUT()
         await sut.load(id: 1)
         
         XCTAssertEqual(service.loadUserCallCount, 1)
     }
     
     func test_load_showsError() async {
-        let service = CharaterServiceStub(result: .failure(RemoteCharacterService.Error.serverError))
-        let sut = CharacterViewModel(service: service)
-        
+        let sut = makeSUT(result: .failure(RemoteCharacterService.Error.serverError))
         await sut.load(id: 1)
         
         XCTAssertEqual(sut.errorMesasge, "Opps, pelase try again later")
     }
     
     func test_load_showsCharacter() async {
-        let expectedCharacter = Character(id: 1, name: "'", status: "", species: "", gender: "")
-        let service = CharaterServiceStub(result: .success(expectedCharacter))
+        let expectedCharacter = sampleCharacter()
+        let sut = makeSUT(result: .success(sampleCharacter()))
+        await sut.load(id: 1)
+        XCTAssertEqual(sut.character, expectedCharacter)
+    }
+    
+    func sampleCharacter() -> Character {
+        return Character(id: 1, name: "'", status: "", species: "", gender: "")
+    }
+    
+    // MARK: Helper
+    private func makeSUT() -> (sut: CharacterViewModel, service: ServiceSpy) {
+        let service = ServiceSpy()
         let sut = CharacterViewModel(service: service)
         
-        await sut.load(id: 1)
-        
-        XCTAssertEqual(sut.character, expectedCharacter)
+        return (sut, service)
+    }
+    
+    func makeSUT(result: Result<Character, Error>) -> CharacterViewModel {
+        let service = CharaterServiceStub(result: result)
+        let sut = CharacterViewModel(service: service)
+        return sut
     }
     
     private final class ServiceSpy: CharacterService {
