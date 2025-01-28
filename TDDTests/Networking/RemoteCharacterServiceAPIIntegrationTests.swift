@@ -10,7 +10,6 @@ import XCTest
 @testable import TDD
 
 final class RemoteCharacterServiceAPIIntegrationTests: XCTestCase {
-
     func test_load_returnRightCharacter() async {
         let stubbingProvider = MoyaProvider<CharacterTargetType>()
         let sut = RemoteCharacterService(stubbingProvider: stubbingProvider)
