@@ -21,7 +21,7 @@ final class CharacterViewModel {
         do {
             character = try await service.load(id: id)
         } catch {
-            errorMesasge = "Opps, pelase try again later"
+            errorMesasge = "Opps, an error occur. Please try again later"
         }
     }
 }
@@ -40,10 +40,13 @@ final class CharacterViewModelTests: XCTestCase {
     }
     
     func test_load_showsError() async {
-        let sut = makeSUT(result: .failure(RemoteCharacterService.Error.serverError))
-        await sut.load(id: 1)
-        
-        XCTAssertEqual(sut.errorMesasge, "Opps, pelase try again later")
+        let errors = RemoteCharacterService.Error.allCases
+        for (index, error) in errors.enumerated() {
+            let sut = makeSUT(result: .failure(error))
+            await sut.load(id: 1)
+            
+            XCTAssertEqual(sut.errorMesasge, "Opps, an error occur. Please try again later", "Fail at: \(index) with error \(error)")
+        }
     }
     
     func test_load_showsCharacter() async {

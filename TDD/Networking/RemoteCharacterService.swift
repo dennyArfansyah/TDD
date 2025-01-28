@@ -19,7 +19,7 @@ class RemoteCharacterService: CharacterService {
         self.stubbingProvider = stubbingProvider
     }
     
-    enum Error: Swift.Error {
+    enum Error: Swift.Error, CaseIterable {
         case timeoutError
         case invalidJSONError
         case serverError
