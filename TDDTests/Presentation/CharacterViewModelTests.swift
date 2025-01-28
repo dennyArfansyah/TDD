@@ -11,12 +11,18 @@ import XCTest
 final class CharacterViewModel {
     let service: CharacterService
     
+    var errorMesasge = ""
+    
     init(service: CharacterService) {
         self.service = service
     }
     
     func load(id: Int) async {
-        _ = try? await service.load(id: id)
+        do {
+            _ = try await service.load(id: id)
+        } catch {
+            errorMesasge = "Opps, pelase try again later"
+        }
     }
 }
 
@@ -38,6 +44,15 @@ final class CharacterViewModelTests: XCTestCase {
         XCTAssertEqual(service.loadUserCallCount, 1)
     }
     
+    func test_load_showsError() async {
+        let service = CharaterServiceStub(result: .failure(RemoteCharacterService.Error.serverError))
+        let sut = CharacterViewModel(service: service)
+        
+        await sut.load(id: 1)
+        
+        XCTAssertEqual(sut.errorMesasge, "Opps, pelase try again later")
+    }
+    
     private final class ServiceSpy: CharacterService {
         private(set) var loadUserCallCount = 0
         
@@ -45,8 +60,22 @@ final class CharacterViewModelTests: XCTestCase {
             loadUserCallCount += 1
             return Character(id: 0, name: "", status: "", species: "", gender: "")
         }
-        
-        
     }
-
+    
+    class CharaterServiceStub: CharacterService {
+        let result: Result<Character, Error>
+        
+        init(result: Result<Character, any Error>) {
+            self.result = result
+        }
+        
+        func load(id: Int) async throws -> TDD.Character {
+            switch result {
+            case .success(let character):
+                return character
+            case .failure(let error):
+                throw error
+            }
+        }
+    }
 }
