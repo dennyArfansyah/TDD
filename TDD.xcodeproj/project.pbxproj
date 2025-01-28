@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -28,16 +28,8 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		37D505C62D378F9500F14A85 /* TDD */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = TDD;
-			sourceTree = "<group>";
-		};
-		37D505D82D378F9600F14A85 /* TDDTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = TDDTests;
-			sourceTree = "<group>";
-		};
+		37D505C62D378F9500F14A85 /* TDD */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = TDD; sourceTree = "<group>"; };
+		37D505D82D378F9600F14A85 /* TDDTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = TDDTests; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -149,6 +141,7 @@
 				};
 			};
 			buildConfigurationList = 37D505BF2D378F9500F14A85 /* Build configuration list for PBXProject "TDD" */;
+			compatibilityVersion = "Xcode 12.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -160,7 +153,6 @@
 			packageReferences = (
 				376367582D3794D900ACDE38 /* XCRemoteSwiftPackageReference "Moya" */,
 			);
-			preferredProjectObjectVersion = 77;
 			productRefGroup = 37D505C52D378F9500F14A85 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
