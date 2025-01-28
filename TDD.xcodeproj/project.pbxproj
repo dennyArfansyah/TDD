@@ -138,6 +138,10 @@
 						CreatedOnToolsVersion = 15.4;
 						TestTargetID = 37D505C32D378F9500F14A85;
 					};
+                    37D505D42D378F9600F14A85 = {
+                        CreatedOnToolsVersion = 15.4;
+                        TestTargetID = 37D505C32D378F9500F14A85;
+                    };
 				};
 			};
 			buildConfigurationList = 37D505BF2D378F9500F14A85 /* Build configuration list for PBXProject "TDD" */;
@@ -213,7 +217,7 @@
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+                CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CLANG_ENABLE_OBJC_WEAK = YES;
