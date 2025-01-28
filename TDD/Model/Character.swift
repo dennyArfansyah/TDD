@@ -5,7 +5,7 @@
 //  Created by Denny Arfansyah on 28/01/25.
 //
 
-struct Character: Decodable {
+struct Character: Decodable, Equatable {
     let id: Int
     let name: String
     let status: String

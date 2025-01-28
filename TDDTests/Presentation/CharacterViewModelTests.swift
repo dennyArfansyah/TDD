@@ -10,8 +10,8 @@ import XCTest
 
 final class CharacterViewModel {
     let service: CharacterService
-    
     var errorMesasge = ""
+    var character: Character?
     
     init(service: CharacterService) {
         self.service = service
@@ -19,7 +19,7 @@ final class CharacterViewModel {
     
     func load(id: Int) async {
         do {
-            _ = try await service.load(id: id)
+            character = try await service.load(id: id)
         } catch {
             errorMesasge = "Opps, pelase try again later"
         }
@@ -51,6 +51,16 @@ final class CharacterViewModelTests: XCTestCase {
         await sut.load(id: 1)
         
         XCTAssertEqual(sut.errorMesasge, "Opps, pelase try again later")
+    }
+    
+    func test_load_showsCharacter() async {
+        let expectedCharacter = Character(id: 1, name: "'", status: "", species: "", gender: "")
+        let service = CharaterServiceStub(result: .success(expectedCharacter))
+        let sut = CharacterViewModel(service: service)
+        
+        await sut.load(id: 1)
+        
+        XCTAssertEqual(sut.character, expectedCharacter)
     }
     
     private final class ServiceSpy: CharacterService {
