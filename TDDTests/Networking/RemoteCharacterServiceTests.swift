@@ -23,7 +23,7 @@ final class RemoteCharacterServiceTests: XCTestCase {
         do {
             _ = try await sut.load(id: 1)
         } catch {
-            if let error = error as? RemoteCharacterService.Error {
+            if let error = error as? Error {
                 XCTAssertEqual(error, .timeoutError)
             } else {
                 XCTFail("expecting timoutError but got \(error) instead.")
@@ -37,7 +37,7 @@ final class RemoteCharacterServiceTests: XCTestCase {
         do {
             _ = try await sut.load(id: 1)
         } catch {
-            if let error = error as? RemoteCharacterService.Error {
+            if let error = error as? Error {
                 XCTAssertEqual(error, .invalidJSONError)
             } else {
                 XCTFail("expecting timoutError but got \(error) instead.")
@@ -51,7 +51,7 @@ final class RemoteCharacterServiceTests: XCTestCase {
         do {
             _ = try await sut.load(id: 1)
         } catch {
-            if let error = error as? RemoteCharacterService.Error {
+            if let error = error as? Error {
                 XCTAssertEqual(error, .serverError)
             } else {
                 XCTFail("expecting timoutError but got \(error) instead.")
@@ -65,7 +65,7 @@ final class RemoteCharacterServiceTests: XCTestCase {
         do {
             _ = try await sut.load(id: 1)
         } catch {
-            if let error = error as? RemoteCharacterService.Error {
+            if let error = error as? Error {
                 XCTAssertEqual(error, .invalidJSONError)
             } else {
                 XCTFail("expecting timoutError but got \(error) instead.")
@@ -92,7 +92,7 @@ final class RemoteCharacterServiceTests: XCTestCase {
         do {
             _ = try await sut.load(id: 1)
         } catch {
-            if let error = error as? RemoteCharacterService.Error {
+            if let error = error as? Error {
                 XCTAssertEqual(error, .notFoundCharacterError)
             } else {
                 XCTFail("expecting timoutError but got \(error) instead.")

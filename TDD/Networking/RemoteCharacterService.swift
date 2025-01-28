@@ -19,13 +19,6 @@ class RemoteCharacterService: CharacterService {
         self.stubbingProvider = stubbingProvider
     }
     
-    enum Error: Swift.Error, CaseIterable {
-        case timeoutError
-        case invalidJSONError
-        case serverError
-        case notFoundCharacterError
-    }
-    
     func load(id: Int) async throws -> Character {
         return try await withCheckedThrowingContinuation { continuation in
             load(id: id) { result in
@@ -33,6 +26,13 @@ class RemoteCharacterService: CharacterService {
             }
         }
     }
+}
+
+enum Error: Swift.Error, CaseIterable {
+    case timeoutError
+    case invalidJSONError
+    case serverError
+    case notFoundCharacterError
 }
 
 extension RemoteCharacterService {
