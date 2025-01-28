@@ -30,7 +30,7 @@ final class CharacterViewModelTests: XCTestCase {
 
     func test_init_doesNotLoadUser() {
         let service = ServiceSpy()
-        let sut = CharacterViewModel(service: service)
+        _ = CharacterViewModel(service: service)
         
         XCTAssertEqual(service.loadUserCallCount, 0)
     }
