@@ -40,7 +40,7 @@ final class CharacterViewModelTests: XCTestCase {
     }
     
     func test_load_showsError() async {
-        let errors = RemoteCharacterService.Error.allCases
+        let errors = Error.allCases
         for (index, error) in errors.enumerated() {
             let sut = makeSUT(result: .failure(error))
             await sut.load(id: 1)
@@ -86,7 +86,7 @@ final class CharacterViewModelTests: XCTestCase {
     class CharaterServiceStub: CharacterService {
         let result: Result<Character, Error>
         
-        init(result: Result<Character, any Error>) {
+        init(result: Result<Character, Error>) {
             self.result = result
         }
         
